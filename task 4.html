@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background-color: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn {
+            background-color: #52c41a;
+            color: white;
+        }
+
+        .login-btn:hover {
+            background-color: #45a816;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(82, 196, 26, 0.3);
+        }
+
+        .clear-btn {
+            background-color: #f5222d;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background-color: #d91a24;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 34, 45, 0.3);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+            padding-right: 35px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login Form</h2>
+        <form>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+            </div>
+
+            <div class="form-group">
+                <label for="loginAs">Login As:</label>
+                <select id="loginAs" name="loginAs">
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="course">Course:</label>
+                <select id="course" name="course">
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="cpp">C++</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="login-btn">Login</button>
+                <button type="reset" class="clear-btn">Clear</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

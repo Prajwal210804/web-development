@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Navigation Bar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        nav {
+            background-color: #f39c12;
+            padding: 20px 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav ul li {
+            position: relative;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 32px;
+            padding: 10px 20px;
+            display: block;
+        }
+
+        nav ul li a:hover {
+            opacity: 0.8;
+        }
+
+        /* Dropdown arrow */
+        .dropdown::after {
+            content: '▼';
+            display: block;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* Dropdown menu */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #e67e22;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            margin-top: 10px;
+        }
+
+        .dropdown-menu li {
+            width: 100%;
+        }
+
+        .dropdown-menu li a {
+            font-size: 18px;
+            padding: 15px 20px;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-menu li:last-child a {
+            border-bottom: none;
+        }
+
+        .dropdown-menu li a:hover {
+            background-color: #d35400;
+            opacity: 1;
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            line-height: 1.5;
+        }
+
+        .content h1 span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li class="dropdown">
+                <a href="#services">Services</a>
+                <ul class="dropdown-menu">
+                    <li><a href="#web-design">Web Design</a></li>
+                    <li><a href="#web-development">Web Development</a></li>
+                    <li><a href="#seo">SEO Services</a></li>
+                    <li><a href="#digital-marketing">Digital Marketing</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#contact">contact</a>
+                <ul class="dropdown-menu">
+                    <li><a href="#email">Email Us</a></li>
+                    <li><a href="#phone">Call Us</a></li>
+                    <li><a href="#location">Our Location</a></li>
+                    <li><a href="#support">Support</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="content">
+        <h1>This navigation bar is built using a <span>CSS model</span></h1>
+    </div>
+</body>
+</html>
