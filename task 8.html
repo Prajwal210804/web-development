@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-glow: rgba(0, 255, 136, 0.3);
+            --secondary: #ff0066;
+            --dark: #0a0e27;
+            --dark-blue: #1a1f3a;
+            --text: #e0e6ff;
+            --text-dim: #8892b8;
+            --error: #ff3366;
+            --success: #00ff88;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 102, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, var(--dark) 0%, var(--dark-blue) 100%);
+            z-index: -1;
+        }
+
+        /* Grid overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridShift 20s linear infinite;
+        }
+
+        @keyframes gridShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: rgba(26, 31, 58, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 136, 0.1),
+                inset 0 0 60px rgba(0, 255, 136, 0.02);
+            position: relative;
+            overflow: hidden;
+            animation: cardEntry 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes cardEntry {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: scanline 3s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 20px var(--primary-glow));
+            }
+            50% { 
+                filter: drop-shadow(0 0 30px var(--primary-glow));
+            }
+        }
+
+        .logo p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(10, 14, 39, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+            background: rgba(10, 14, 39, 0.8);
+        }
+
+        input.error {
+            border-color: var(--error);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        input.success {
+            border-color: var(--success);
+        }
+
+        .error-message {
+            display: none;
+            color: var(--error);
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding-left: 5px;
+            animation: errorSlide 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes errorSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-message {
+            display: none;
+            color: var(--success);
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding-left: 5px;
+            animation: errorSlide 0.3s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), #00cc6f);
+            border: none;
+            border-radius: 10px;
+            color: var(--dark);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .forgot-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .forgot-link:hover {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            transform: translateX(-5px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .password-strength-bar.weak {
+            width: 33%;
+            background: var(--error);
+        }
+
+        .password-strength-bar.medium {
+            width: 66%;
+            background: #ffaa00;
+        }
+
+        .password-strength-bar.strong {
+            width: 100%;
+            background: var(--success);
+        }
+
+        /* Loading state */
+        .btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn.loading span::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 40px 30px;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Page -->
+        <div id="loginPage" class="auth-card">
+            <div class="logo">
+                <h1>NEXUS</h1>
+                <p>Secure Access Portal</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="email" 
+                            id="loginEmail" 
+                            placeholder="user@example.com"
+                            required
+                        >
+                    </div>
+                    <div class="error-message" id="loginEmailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+                    <div class="error-message" id="loginPasswordError"></div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn">
+                        <span>Login</span>
+                    </button>
+                </div>
+
+                <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot Password?</a>
+            </form>
+        </div>
+
+        <!-- Forgot Password Page -->
+        <div id="forgotPasswordPage" class="auth-card hidden">
+            <a href="#" class="back-link" id="backToLoginLink">
+                <span>←</span> Back to Login
+            </a>
+
+            <div class="logo">
+                <h1>RESET</h1>
+                <p>Password Recovery</p>
+            </div>
+
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            id="newPassword" 
+                            placeholder="Enter new password"
+                            required
+                        >
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                    </div>
+                    <div class="error-message" id="newPasswordError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            placeholder="Re-enter new password"
+                            required
+                        >
+                    </div>
+                    <div class="error-message" id="confirmPasswordError"></div>
+                    <div class="success-message" id="confirmPasswordSuccess"></div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn">
+                        <span>Reset Password</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Page Navigation
+        const loginPage = document.getElementById('loginPage');
+        const forgotPasswordPage = document.getElementById('forgotPasswordPage');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const backToLoginLink = document.getElementById('backToLoginLink');
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginPage.classList.add('hidden');
+            forgotPasswordPage.classList.remove('hidden');
+            resetForgotPasswordForm();
+        });
+
+        backToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotPasswordPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            resetLoginForm();
+        });
+
+        // Login Form Validation
+        const loginForm = document.getElementById('loginForm');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginEmailError = document.getElementById('loginEmailError');
+        const loginPasswordError = document.getElementById('loginPasswordError');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            let isValid = true;
+
+            // Email validation
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!loginEmail.value.trim()) {
+                showError(loginEmail, loginEmailError, 'Email is required');
+                isValid = false;
+            } else if (!emailPattern.test(loginEmail.value)) {
+                showError(loginEmail, loginEmailError, 'Please enter a valid email');
+                isValid = false;
+            } else {
+                clearError(loginEmail, loginEmailError);
+            }
+
+            // Password validation
+            if (!loginPassword.value.trim()) {
+                showError(loginPassword, loginPasswordError, 'Password is required');
+                isValid = false;
+            } else if (loginPassword.value.length < 6) {
+                showError(loginPassword, loginPasswordError, 'Password must be at least 6 characters');
+                isValid = false;
+            } else {
+                clearError(loginPassword, loginPasswordError);
+            }
+
+            if (isValid) {
+                // Simulate login process
+                const submitBtn = loginForm.querySelector('.btn');
+                submitBtn.classList.add('loading');
+                
+                setTimeout(() => {
+                    submitBtn.classList.remove('loading');
+                    alert('Login successful! Welcome back.');
+                    loginForm.reset();
+                }, 1500);
+            }
+        });
+
+        // Forgot Password Form Validation
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const newPasswordError = document.getElementById('newPasswordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        const confirmPasswordSuccess = document.getElementById('confirmPasswordSuccess');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+
+        // Password strength checker
+        newPassword.addEventListener('input', () => {
+            const password = newPassword.value;
+            
+            if (password.length > 0) {
+                passwordStrength.classList.add('show');
+                const strength = calculatePasswordStrength(password);
+                
+                passwordStrengthBar.className = 'password-strength-bar';
+                if (strength < 3) {
+                    passwordStrengthBar.classList.add('weak');
+                } else if (strength < 5) {
+                    passwordStrengthBar.classList.add('medium');
+                } else {
+                    passwordStrengthBar.classList.add('strong');
+                }
+            } else {
+                passwordStrength.classList.remove('show');
+            }
+
+            // Real-time validation when confirm password has value
+            if (confirmPassword.value) {
+                validatePasswordMatch();
+            }
+        });
+
+        // Real-time password match validation
+        confirmPassword.addEventListener('input', validatePasswordMatch);
+
+        function validatePasswordMatch() {
+            if (confirmPassword.value.length > 0) {
+                if (newPassword.value === confirmPassword.value) {
+                    confirmPassword.classList.remove('error');
+                    confirmPassword.classList.add('success');
+                    confirmPasswordError.classList.remove('show');
+                    confirmPasswordSuccess.textContent = 'Passwords match ✓';
+                    confirmPasswordSuccess.classList.add('show');
+                } else {
+                    confirmPassword.classList.add('error');
+                    confirmPassword.classList.remove('success');
+                    confirmPasswordSuccess.classList.remove('show');
+                    confirmPasswordError.textContent = 'Passwords do not match';
+                    confirmPasswordError.classList.add('show');
+                }
+            } else {
+                confirmPassword.classList.remove('error', 'success');
+                confirmPasswordError.classList.remove('show');
+                confirmPasswordSuccess.classList.remove('show');
+            }
+        }
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            return strength;
+        }
+
+        forgotPasswordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            let isValid = true;
+
+            // New password validation
+            if (!newPassword.value.trim()) {
+                showError(newPassword, newPasswordError, 'New password is required');
+                isValid = false;
+            } else if (newPassword.value.length < 8) {
+                showError(newPassword, newPasswordError, 'Password must be at least 8 characters');
+                isValid = false;
+            } else {
+                clearError(newPassword, newPasswordError);
+            }
+
+            // Confirm password validation
+            if (!confirmPassword.value.trim()) {
+                showError(confirmPassword, confirmPasswordError, 'Please confirm your password');
+                confirmPasswordSuccess.classList.remove('show');
+                isValid = false;
+            } else if (newPassword.value !== confirmPassword.value) {
+                showError(confirmPassword, confirmPasswordError, 'Passwords do not match');
+                confirmPasswordSuccess.classList.remove('show');
+                isValid = false;
+            } else {
+                clearError(confirmPassword, confirmPasswordError);
+            }
+
+            if (isValid) {
+                // Password reset successful - redirect to login
+                const submitBtn = forgotPasswordForm.querySelector('.btn');
+                submitBtn.classList.add('loading');
+                
+                setTimeout(() => {
+                    submitBtn.classList.remove('loading');
+                    alert('Password reset successful! Redirecting to login...');
+                    
+                    // Redirect to login page
+                    setTimeout(() => {
+                        forgotPasswordPage.classList.add('hidden');
+                        loginPage.classList.remove('hidden');
+                        resetForgotPasswordForm();
+                        resetLoginForm();
+                    }, 500);
+                }, 1500);
+            }
+        });
+
+        // Helper functions
+        function showError(input, errorElement, message) {
+            input.classList.add('error');
+            input.classList.remove('success');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+
+        function clearError(input, errorElement) {
+            input.classList.remove('error');
+            errorElement.classList.remove('show');
+        }
+
+        function resetLoginForm() {
+            loginForm.reset();
+            loginEmail.classList.remove('error', 'success');
+            loginPassword.classList.remove('error', 'success');
+            loginEmailError.classList.remove('show');
+            loginPasswordError.classList.remove('show');
+        }
+
+        function resetForgotPasswordForm() {
+            forgotPasswordForm.reset();
+            newPassword.classList.remove('error', 'success');
+            confirmPassword.classList.remove('error', 'success');
+            newPasswordError.classList.remove('show');
+            confirmPasswordError.classList.remove('show');
+            confirmPasswordSuccess.classList.remove('show');
+            passwordStrength.classList.remove('show');
+        }
+    </script>
+</body>
+</html>
