@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prajwal Tech Store</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#f4f4f4;
+}
+
+/* HEADER */
+
+header{
+background:#111;
+color:white;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 30px;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+}
+
+header button{
+background:#00adb5;
+border:none;
+color:white;
+padding:8px 15px;
+cursor:pointer;
+border-radius:4px;
+}
+
+/* SEARCH */
+
+.search{
+text-align:center;
+margin:20px;
+}
+
+.search input{
+padding:10px;
+width:280px;
+border:1px solid #ccc;
+}
+
+/* CATEGORY */
+
+.categories{
+text-align:center;
+margin-bottom:20px;
+}
+
+.categories button{
+margin:5px;
+padding:8px 15px;
+border:none;
+background:#222;
+color:white;
+cursor:pointer;
+border-radius:4px;
+}
+
+/* PRODUCTS */
+
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.product{
+background:white;
+padding:15px;
+border-radius:8px;
+text-align:center;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.product img{
+width:100%;
+height:160px;
+object-fit:cover;
+border-radius:5px;
+}
+
+.product h3{
+margin:10px 0;
+}
+
+.product button{
+margin-top:10px;
+padding:8px;
+border:none;
+background:#00adb5;
+color:white;
+cursor:pointer;
+width:100%;
+border-radius:4px;
+}
+
+/* CART */
+
+.cartPanel{
+position:fixed;
+right:0;
+top:0;
+width:330px;
+height:100%;
+background:white;
+padding:20px;
+box-shadow:-3px 0 10px rgba(0,0,0,0.2);
+transform:translateX(100%);
+transition:0.3s;
+overflow:auto;
+z-index:1000;
+}
+
+.cartPanel.active{
+transform:translateX(0);
+}
+
+.closeCart{
+background:red;
+color:white;
+border:none;
+padding:6px 12px;
+cursor:pointer;
+margin-bottom:10px;
+}
+
+.cartItem{
+display:flex;
+justify-content:space-between;
+margin:12px 0;
+font-size:14px;
+}
+
+.qtyBtn{
+padding:2px 8px;
+margin:0 3px;
+}
+
+.total{
+margin-top:20px;
+font-weight:bold;
+}
+
+.checkout{
+margin-top:10px;
+width:100%;
+padding:10px;
+border:none;
+background:#111;
+color:white;
+cursor:pointer;
+}
+
+.overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:none;
+}
+
+.overlay.active{
+display:block;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">Prajwal Tech Store</div>
+
+<button onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</button>
+
+</header>
+
+<div class="search">
+<input type="text" id="search" placeholder="Search product..." onkeyup="searchProducts()">
+</div>
+
+<div class="categories">
+<button onclick="filterCategory('all')">All</button>
+<button onclick="filterCategory('laptop')">Laptops</button>
+<button onclick="filterCategory('phone')">Phones</button>
+<button onclick="filterCategory('accessory')">Accessories</button>
+</div>
+
+<section class="products" id="productContainer"></section>
+
+<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+<div class="cartPanel" id="cartPanel">
+
+<button class="closeCart" onclick="toggleCart()">Close</button>
+
+<h2>Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<p class="total">Total: ₹<span id="totalPrice">0</span></p>
+
+<h3>Customer Details</h3>
+
+<input type="text" id="customerName" placeholder="Enter your name" style="width:100%;padding:8px;margin-top:8px">
+
+<input type="email" id="customerEmail" placeholder="Enter your email" style="width:100%;padding:8px;margin-top:8px">
+
+<button class="checkout" onclick="checkout()">Checkout</button>
+
+</div>
+
+<script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbz_MoJAaDuyhJ9WtKKI1gs0BGeBX_BtzRdiYwoOSWNJrpT_NF_XQLlZHjwDTMyG3LY7/exec";
+
+function sendOrderToSheet(name,email,product,price,qty){
+
+let total = price * qty;
+
+return fetch(scriptURL, {
+
+method: "POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body: JSON.stringify({
+name: name,
+email: email,
+product: product,
+quantity: qty,
+price: price,
+total: total
+})
+
+})
+
+.then(res => res.text())
+.then(data => console.log("Saved to sheet:", data))
+.catch(err => console.log("Error sending data", err))
+
+}
+    
+
+/* PRODUCT LIST */
+
+const products=[
+
+{id:1,name:"MacBook Pro",price:120000,category:"laptop",img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8"},
+{id:2,name:"Dell XPS Laptop",price:95000,category:"laptop",img:"https://images.unsplash.com/photo-1518770660439-4636190af475"},
+{id:3,name:"Gaming Laptop",price:85000,category:"laptop",img:"https://images.unsplash.com/photo-1587202372775-e229f172b9d7"},
+{id:4,name:"HP Laptop",price:65000,category:"laptop",img:"https://images.unsplash.com/photo-1519389950473-47ba0277781c"},
+
+{id:5,name:"iPhone 14",price:70000,category:"phone",img:"https://images.unsplash.com/photo-1511707171634-5f897ff02aa9"},
+{id:6,name:"Samsung Galaxy",price:55000,category:"phone",img:"https://images.unsplash.com/photo-1598327105666-5b89351aff97"},
+{id:7,name:"Google Pixel",price:60000,category:"phone",img:"https://images.unsplash.com/photo-1556656793-08538906a9f8"},
+{id:8,name:"OnePlus Phone",price:45000,category:"phone",img:"https://images.unsplash.com/photo-1603899122465-61a4d9f11c7c"},
+
+{id:9,name:"Wireless Headphones",price:3500,category:"audio",img:"https://images.unsplash.com/photo-1518444065439-e933c06ce9cd"},
+{id:10,name:"Gaming Headset",price:3200,category:"audio",img:"https://images.unsplash.com/photo-1580894894513-541e068a3e2b"},
+{id:11,name:"Bluetooth Earbuds",price:2500,category:"audio",img:"https://images.unsplash.com/photo-1583394838336-acd977736f90"},
+{id:12,name:"Noise Cancelling Headphones",price:8500,category:"audio",img:"https://images.unsplash.com/photo-1546435770-a3e426bf472b"},
+
+{id:13,name:"Fast Charger",price:900,category:"charger",img:"https://images.unsplash.com/photo-1583863788434-e58a36330cf0"},
+{id:14,name:"USB Type-C Charger",price:700,category:"charger",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+{id:15,name:"Wireless Charger",price:1800,category:"charger",img:"https://images.unsplash.com/photo-1585386959984-a41552231658"},
+{id:16,name:"Laptop Charger",price:2200,category:"charger",img:"https://images.unsplash.com/photo-1614064641938-3bbee52942c7"},
+
+{id:17,name:"iPhone Back Cover",price:500,category:"cover",img:"https://images.unsplash.com/photo-1580910051074-3eb694886505"},
+{id:18,name:"Samsung Back Cover",price:450,category:"cover",img:"https://images.unsplash.com/photo-1585060544812-6b45742d762f"},
+{id:19,name:"Transparent Phone Cover",price:300,category:"cover",img:"https://images.unsplash.com/photo-1616578273576-4bdb52a4e7c5"},
+{id:20,name:"Silicone Phone Cover",price:350,category:"cover",img:"https://images.unsplash.com/photo-1601597111158-2fceff292cdc"},
+
+{id:21,name:"Wireless Mouse",price:900,category:"accessory",img:"https://images.unsplash.com/photo-1587829741301-dc798b83add3"},
+{id:22,name:"Mechanical Keyboard",price:2500,category:"accessory",img:"https://images.unsplash.com/photo-1519389950473-47ba0277781c"},
+{id:23,name:"Gaming Mouse",price:1600,category:"accessory",img:"https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7"},
+{id:24,name:"Laptop Stand",price:1500,category:"accessory",img:"https://images.unsplash.com/photo-1593642634524-b40b5baae6bb"},
+
+{id:25,name:"Power Bank 10000mAh",price:1200,category:"powerbank",img:"https://images.unsplash.com/photo-1583863788434-e58a36330cf0"},
+{id:26,name:"Power Bank 20000mAh",price:2000,category:"powerbank",img:"https://images.unsplash.com/photo-1583863788434-e58a36330cf0"},
+{id:27,name:"Fast Power Bank",price:2400,category:"powerbank",img:"https://images.unsplash.com/photo-1583863788434-e58a36330cf0"},
+
+{id:28,name:"USB Cable Type-C",price:200,category:"cable",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+{id:29,name:"Lightning Cable",price:350,category:"cable",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+{id:30,name:"Micro USB Cable",price:150,category:"cable",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+
+{id:31,name:"Tablet",price:35000,category:"tablet",img:"https://images.unsplash.com/photo-1510552776732-01acc85c2c2c"},
+{id:32,name:"iPad",price:50000,category:"tablet",img:"https://images.unsplash.com/photo-1542751371-adc38448a05e"},
+
+{id:33,name:"Smart Watch",price:6000,category:"wearable",img:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b"},
+{id:34,name:"Fitness Band",price:3000,category:"wearable",img:"https://images.unsplash.com/photo-1579586337278-3befd40fd17a"},
+
+{id:35,name:"Bluetooth Speaker",price:2800,category:"audio",img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e"},
+{id:36,name:"Portable Speaker",price:1800,category:"audio",img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e"},
+
+{id:37,name:"Gaming Controller",price:4200,category:"gaming",img:"https://images.unsplash.com/photo-1606813907291-d86efa9b94db"},
+{id:38,name:"VR Headset",price:12000,category:"gaming",img:"https://images.unsplash.com/photo-1593508512255-86ab42a8e620"},
+
+{id:39,name:"Laptop Bag",price:900,category:"accessory",img:"https://images.unsplash.com/photo-1585386959984-a41552231658"},
+{id:40,name:"Phone Stand",price:250,category:"accessory",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+
+{id:41,name:"SSD 1TB",price:8500,category:"storage",img:"https://images.unsplash.com/photo-1587202372775-e229f172b9d7"},
+{id:42,name:"USB Pendrive 128GB",price:1200,category:"storage",img:"https://images.unsplash.com/photo-1518770660439-4636190af475"},
+
+{id:43,name:"External Hard Drive",price:6000,category:"storage",img:"https://images.unsplash.com/photo-1587202372775-e229f172b9d7"},
+{id:44,name:"Webcam",price:2500,category:"accessory",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+
+{id:45,name:"Ring Light",price:1500,category:"accessory",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+{id:46,name:"Tripod Stand",price:1700,category:"accessory",img:"https://images.unsplash.com/photo-1593642634367-d91a135587b5"},
+
+{id:47,name:"Router",price:3200,category:"network",img:"https://images.unsplash.com/photo-1518770660439-4636190af475"},
+{id:48,name:"WiFi Extender",price:2100,category:"network",img:"https://images.unsplash.com/photo-1518770660439-4636190af475"},
+
+{id:49,name:"Laptop Cooling Pad",price:1100,category:"accessory",img:"https://images.unsplash.com/photo-1519389950473-47ba0277781c"},
+{id:50,name:"USB Hub",price:700,category:"accessory",img:"https://images.unsplash.com/photo-1518770660439-4636190af475"}
+
+]
+
+let cart=JSON.parse(localStorage.getItem("cart")) || []
+
+/* DISPLAY PRODUCTS */
+
+function showProducts(list){
+
+let html=""
+
+list.forEach(p=>{
+
+html+=`
+
+<div class="product">
+
+<img src="${p.img}">
+<h3>${p.name}</h3>
+<p>₹${p.price}</p>
+
+<button onclick="addToCart(${p.id})">Add to Cart</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("productContainer").innerHTML=html
+
+}
+
+showProducts(products)
+
+/* SEARCH */
+
+function searchProducts(){
+
+let value=document.getElementById("search").value.toLowerCase()
+
+let filtered=products.filter(p=>p.name.toLowerCase().includes(value))
+
+showProducts(filtered)
+
+}
+
+/* CATEGORY */
+
+function filterCategory(cat){
+
+if(cat==="all"){
+showProducts(products)
+}else{
+showProducts(products.filter(p=>p.category===cat))
+}
+
+}
+
+/* ADD CART */
+
+function addToCart(id){
+
+let item=cart.find(p=>p.id===id)
+
+if(item){
+item.qty++
+}else{
+let product=products.find(p=>p.id===id)
+cart.push({...product,qty:1})
+}
+
+saveCart()
+
+}
+
+/* SAVE */
+
+function saveCart(){
+
+localStorage.setItem("cart",JSON.stringify(cart))
+updateCart()
+
+}
+
+/* UPDATE CART */
+
+function updateCart(){
+
+let html=""
+let total=0
+
+cart.forEach((item,index)=>{
+
+total+=item.price*item.qty
+
+html+=`
+
+<div class="cartItem">
+
+${item.name}
+
+<div>
+
+<button class="qtyBtn" onclick="changeQty(${index},-1)">-</button>
+
+${item.qty}
+
+<button class="qtyBtn" onclick="changeQty(${index},1)">+</button>
+
+<button onclick="removeItem(${index})">X</button>
+
+</div>
+
+</div>
+
+`
+
+})
+
+document.getElementById("cartItems").innerHTML=html
+document.getElementById("totalPrice").innerText=total
+document.getElementById("cartCount").innerText=cart.length
+
+}
+
+updateCart()
+
+function changeQty(index,amount){
+
+cart[index].qty+=amount
+
+if(cart[index].qty<=0){
+cart.splice(index,1)
+}
+
+saveCart()
+
+}
+
+function removeItem(index){
+
+cart.splice(index,1)
+saveCart()
+
+}
+
+/* CART PANEL */
+
+function toggleCart(){
+
+document.getElementById("cartPanel").classList.toggle("active")
+document.getElementById("overlay").classList.toggle("active")
+
+}
+
+/* CHECKOUT */
+
+async function checkout(){
+
+let name=document.getElementById("customerName").value
+let email=document.getElementById("customerEmail").value
+
+if(name=="" || email==""){
+alert("Please enter your name and email")
+return
+}
+
+if(cart.length===0){
+alert("Cart is empty")
+return
+}
+
+try{
+
+for(const item of cart){
+
+await sendOrderToSheet(name,email,item.name,item.price,item.qty)
+
+}
+
+alert("Order placed successfully!")
+
+cart=[]
+saveCart()
+
+document.getElementById("customerName").value=""
+document.getElementById("customerEmail").value=""
+
+}
+catch(error){
+
+alert("Error sending order")
+
+}
+
+}
+
+cart.forEach(item => {
+
+function sendOrderToSheet(name,email,product,price,qty){
+
+let total = price * qty;
+
+return fetch(scriptURL,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+name:name,
+email:email,
+product:product,
+quantity:qty,
+price:price,
+total:total
+})
+
+})
+.then(res=>res.text())
+.then(data=>console.log("Saved:",data))
+.catch(err=>console.log("Error:",err))
+
+}
+
+})
+
+alert("Order placed successfully!")
+
+cart=[]
+
+saveCart()
+
+
+</script>
+
+</body>
+</html>
