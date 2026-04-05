@@ -1,0 +1,78 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+// ✅ FIXED: add connection logging
+mongoose.connect("mongodb://127.0.0.1:27017/ems")
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log("MongoDB Error:", err));
+
+// MODEL
+const employeeSchema = new mongoose.Schema({
+  employeeId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  name: String,
+  email: String,
+  phone: String,
+  department: String,
+  designation: String,
+  salary: String,
+  joiningDate: String
+});
+
+const Employee = mongoose.model("Employee", employeeSchema);
+
+/// ✅ GET ALL
+app.get("/api/employees", async (req, res) => {
+  try {
+    const employees = await Employee.find();
+    res.json(employees);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ ADD
+app.post("/api/employees", async (req, res) => {
+  try {
+    const employee = new Employee(req.body);
+    await employee.save();
+    res.json(employee);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ UPDATE
+app.put("/api/employees/:id", async (req, res) => {
+  try {
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.json(updatedEmployee);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ DELETE
+app.delete("/api/employees/:id", async (req, res) => {
+  try {
+    await Employee.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(5000, () => console.log("Server running on port 5000"));
